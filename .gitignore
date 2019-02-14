@@ -3,4 +3,5 @@ certs
 https-run.sh
 ssh-creds
 *.iml
+jenkins-home/
 .idea
