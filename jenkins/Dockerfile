@@ -3,7 +3,7 @@ ARG JENKINS_REGISTRY=jenkins/jenkins
 FROM ${JENKINS_REGISTRY}:${JENKINS_VER}
 
 # switch to root, let the entrypoint drop back to jenkins
-#USER root
+USER root
 
 # install prerequisite debian packages
 RUN apt-get update \
