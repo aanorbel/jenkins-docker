@@ -57,9 +57,14 @@ RUN apt-get update && \
     gcc-avr \
     avr-libc \
     avrdude \
+    arduino \
     arduino-core && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+RUN  wget "https://downloads.arduino.cc/arduino-cli/arduino-cli-latest-linux64.tar.bz2" \
+ && tar -xf arduino-cli-latest-linux64.tar.bz2 \
+ &&  mv arduino-cli-0.3.4-alpha.preview-linux64 /usr/local/bin/arduino-cli
 
 RUN pip install ino
 
