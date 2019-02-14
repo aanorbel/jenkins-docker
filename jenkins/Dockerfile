@@ -3,7 +3,7 @@ ARG JENKINS_REGISTRY=jenkins/jenkins
 FROM ${JENKINS_REGISTRY}:${JENKINS_VER}
 
 # switch to root, let the entrypoint drop back to jenkins
-USER root
+#USER root
 
 # install prerequisite debian packages
 RUN apt-get update \
@@ -41,13 +41,35 @@ RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - \
  && groupadd -r docker \
  && usermod -aG docker jenkins
 
+# install arduino
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    # Generic
+    build-essential \
+    curl \
+    wget \
+    git \
+    # Python
+    python \
+    python-pip \
+    picocom \
+    gcc-avr \
+    avr-libc \
+    avrdude \
+    arduino-core && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN pip install ino
+
 COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
 RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
 
 # entrypoint is used to update docker gid and revert back to jenkins user
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+#COPY entrypoint.sh /entrypoint.sh
+#RUN chmod +x /entrypoint.sh
+#ENTRYPOINT ["/entrypoint.sh"]
 HEALTHCHECK CMD curl -sSLf http://localhost:8080/login >/dev/null || exit 1
 
 ARG BUILD_DATE
@@ -55,13 +77,10 @@ ARG VCS_REF
 ARG IMAGE_PATCH_VER=0
 LABEL \
     org.label-schema.build-date=$BUILD_DATE \
-    org.label-schema.docker.cmd="docker run -d -p 8080:8080 -v \"$$(pwd)/jenkins-home:/var/jenkins_home\" -v /var/run/docker.sock:/var/run/docker.sock bmitch3020/jenkins-docker" \
+    org.label-schema.docker.cmd="docker run -d -p 8080:8080 -v \"$$(pwd)/jenkins-home:/var/jenkins_home\" -v /var/run/docker.sock:/var/run/docker.sock docker-image" \
     org.label-schema.description="Jenkins with docker support, Jenkins ${JENKINS_VER}, Docker ${DOCKER_VER}" \
     org.label-schema.name="bmitch3020/jenkins-docker" \
     org.label-schema.schema-version="1.0" \
-    org.label-schema.url="https://github.com/sudo-bmitch/jenkins-docker" \
     org.label-schema.vcs-ref=$VCS_REF \
-    org.label-schema.vcs-url="https://github.com/sudo-bmitch/jenkins-docker" \
-    org.label-schema.vendor="Brandon Mitchell" \
     org.label-schema.version="${JENKINS_VER}-${IMAGE_PATCH_VER}"
 
