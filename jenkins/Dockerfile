@@ -58,6 +58,7 @@ RUN apt-get update && \
     avr-libc \
     avrdude \
     arduino \
+    arduino-mk \
     arduino-core && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
