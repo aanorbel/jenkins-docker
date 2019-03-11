@@ -1,0 +1,44 @@
+version: '3.2'
+services:
+  wso2:
+    image: wso2/wso2is:5.7.0
+    ports:
+      - 9443:9443
+      - 9763:9763
+    healthcheck:
+      test: ["CMD", "curl", "-k", "-f", "https://localhost:9443/carbon/admin/login.jsp"]
+      interval: 5s
+      timeout: 120s
+      
+  sonarqube:
+    image: sonarqube:lts
+    ports:
+      - 9000:9000
+    environment:
+      - SONARQUBE_JDBC_URL=jdbc:mysql://db:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true
+      - SONARQUBE_JDBC_USERNAME=sonar
+      - SONARQUBE_JDBC_PASSWORD=sonar
+    volumes:
+      - sonarqube-conf:/opt/sonarqube/conf
+      - sonarqube-data:/opt/sonarqube/data
+      - sonarqube-extensions:/opt/sonarqube/extensions
+      - sonarqube-bundled-plugins:/opt/sonarqube/lib/bundled-plugins
+  db:
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=sonar
+      - MYSQL_DATABASE=sonar
+      - MYSQL_USER=sonar
+      - MYSQL_PASSWORD=sonar
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  sonarqube-conf:
+  sonarqube-data:
+  sonarqube-extensions:
+  sonarqube-bundled-plugins:
+  mysql-data:
+  jenkins-home:
